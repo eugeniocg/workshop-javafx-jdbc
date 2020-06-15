@@ -3,6 +3,8 @@ package gui;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
+
 import application.Main;
 import gui.util.Alerts;
 import javafx.fxml.FXML;
@@ -31,17 +33,25 @@ public class MainViewController implements Initializable {
 		System.out.println("Menu Funcionario");
 	}
 
+//	@FXML
+//	public void onMenuItemDepartamentoAction() {
+//		loadView2("/gui/DepartamentoLista.fxml");
+//	}
+	
 	@FXML
 	public void onMenuItemDepartamentoAction() {
-		loadView2("/gui/DepartamentoLista.fxml");
+		loadView("/gui/DepartamentoLista.fxml", (DepartamentoListaController controller) ->{
+			controller.setDepartamentoServico(new DepartamentoServico());
+			controller.updateTableView();
+		});
 	}
 
 	@FXML
 	public void onMenuItemAboutAction() {
-		loadView("/gui/About.fxml");
+		loadView("/gui/About.fxml",x ->{});
 	}
 
-	private synchronized void  loadView(String absoluteNome) {
+	private synchronized <T> void  loadView(String absoluteNome, Consumer<T> acaoDeInicializacao) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteNome));
 			VBox newVBox = loader.load();
@@ -53,6 +63,9 @@ public class MainViewController implements Initializable {
 			mainVBox.getChildren().clear();
 			mainVBox.getChildren().add(mainMenu);
 			mainVBox.getChildren().addAll(newVBox.getChildren());
+			
+			T controller = loader.getController();
+			acaoDeInicializacao.accept(controller);
 			
 		} catch (IOException ex) {
 			Alerts.showAlert("Excessão", "Erro na Abertura", ex.getMessage(), AlertType.ERROR);
@@ -63,26 +76,26 @@ public class MainViewController implements Initializable {
 	public void initialize(URL url, ResourceBundle rb) {
 	}
 	
-	private synchronized void  loadView2(String absoluteNome) {
-		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteNome));
-			VBox newVBox = loader.load();
-			
-			Scene mainScene = Main.getMainScene();
-			VBox mainVBox =(VBox)((ScrollPane) mainScene.getRoot()).getContent();
-			
-			Node mainMenu = mainVBox.getChildren().get(0);
-			mainVBox.getChildren().clear();
-			mainVBox.getChildren().add(mainMenu);
-			mainVBox.getChildren().addAll(newVBox.getChildren());
-			
-			DepartamentoListaController controller = loader.getController();
-			controller.setDepartamentoServico(new DepartamentoServico());
-			controller.updateTableView();
-		}
-		catch (IOException ex) {
-			Alerts.showAlert("Excessão", "Erro na Abertura", ex.getMessage(), AlertType.ERROR);
-		}
-	}
+//	private synchronized void  loadView2(String absoluteNome) {
+//		try {
+//			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteNome));
+//			VBox newVBox = loader.load();
+//			
+//			Scene mainScene = Main.getMainScene();
+//			VBox mainVBox =(VBox)((ScrollPane) mainScene.getRoot()).getContent();
+//			
+//			Node mainMenu = mainVBox.getChildren().get(0);
+//			mainVBox.getChildren().clear();
+//			mainVBox.getChildren().add(mainMenu);
+//			mainVBox.getChildren().addAll(newVBox.getChildren());
+//			
+//			DepartamentoListaController controller = loader.getController();
+//			controller.setDepartamentoServico(new DepartamentoServico());
+//			controller.updateTableView();
+//		}
+//		catch (IOException ex) {
+//			Alerts.showAlert("Excessão", "Erro na Abertura", ex.getMessage(), AlertType.ERROR);
+//		}
+//	}
 
 }
